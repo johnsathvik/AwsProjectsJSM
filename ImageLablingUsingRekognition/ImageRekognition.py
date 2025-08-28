@@ -53,3 +53,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+Amazon S3: For storing the images in the process of generating labels.

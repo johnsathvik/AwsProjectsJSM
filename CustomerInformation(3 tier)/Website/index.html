@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Customer Information Form</title>
+<style>
+  body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    color:#333;
+    /* Classic AWS orange -> dark blue */
+    background: linear-gradient(135deg,#ff9900 0%,#232f3e 100%);
+    background-attachment: fixed;
+    background-size: cover;
+    
+  }
+  .container{
+    background:#fff;
+    width:600px;
+    margin:80px auto;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 6px 15px rgba(0,0,0,.3);text-align:center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1{
+    color:#ff9900;
+    margin-bottom:20px;
+  }
+  label{
+    display:block;
+    text-align:left;
+    margin-bottom:6px;
+    font-weight:bold;
+  }
+  input{
+    width:100%;
+    padding:10px;
+    margin-bottom:15px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    font-size:14px;
+  }
+  button{
+    background:#ff9900;
+    color:#fff;
+    padding:10px;
+    border:0;
+    border-radius:6px;
+    font-size:16px;
+    cursor:pointer;
+    width:50%;
+    transition:.3s;
+  }
+  button:hover{
+    background:#e66000;
+  }
+  footer{
+    position: fixed;      
+    bottom: 15px;         
+    left: 50%;            
+    transform: translateX(-50%); 
+    text-align: center;
+    font-size: 14px;
+    color: #fff;
+    width: auto;          
+    padding: 5px 15px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Customer Information Form</h1>
+    <form action="submit.php" method="POST">
+      <label>Name</label>
+      <input type="text" name="name" required>
+      <label>Email</label>
+      <input type="email" name="email" required>
+      <label>Phone</label>
+      <input type="text" name="phone" required>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+  
+  <footer>AWS Project by M John Sathvik</footer>
+</body>
+</html>

@@ -1,0 +1,127 @@
+sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-020cad0bf56c47ecc.efs.us-east-2.amazonaws.com:/ var/www/html
+
+fs-06c81b4720ec6cb33.efs.us-east-2.amazonaws.com:/ /var/www/html nfs4 rw,relatim                                                                                                       e,vers=4.1,rsize=1048576,wsize=1048576,namlen=255,hard,noresvport,proto=tcp,time                                                                                                             o=600,retrans=2,sec=sys,clientaddr=192.168.2.247,local_lock=none,addr=192.168.3.                                                                                                             241 0 0
+
+fs-05a09376caedb3c3d.efs.us-east-2.amazonaws.com:/ /var/www/html nfs4 rw,relatime,vers=4.1,rsize=1048576,wsize=1048576,namlen=255,hard,noresvport,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.0.80,local_lock=none,addr=192.168.8.191 0 0
+
+
+1. Launch an ec2 instance (Launch Amazon Linux 2)
+2. Launch rds cluster 
+3. Configure ec2 instance to connect to rds
+
+Connect to your ec2 instance and Install mysql client
+
+--> sudo yum install mysql -y
+
+Export mysql endpoint.
+--> export MYSQL_HOST=<your-endpoint>
+
+export MYSQL_HOST=capstoneprod.cxy6m4cca3fo.us-east-2.rds.amazonaws.com
+
+--
+Connect to mysql to create a db user
+
+mysql -h capstoneprod.cxy6m4cca3fo.us-east-2.rds.amazonaws.com -P 3306 -u dbadmin -p
+
+--
+
+CREATE DATABASE mywebapp;
+create table mywebapp.customers(
+    id int(11) not null auto_increment,
+    name varchar(50) not null,
+    email varchar(50) not null,
+    phone varchar(20) not null,
+    primary key (id)
+);
+
+CREATE USER 'webappuser' IDENTIFIED BY 'john1234';
+GRANT ALL PRIVILEGES ON mywebapp.* TO webappuser;
+FLUSH PRIVILEGES;
+Exit
+
+--
+
+Now configure the apache as a first thing..
+
+sudo yum install -y httpd
+sudo service httpd start
+chkconfig httpd on
+
+--
+
+Download and unzip the wordpress 
+
+wget https://wordpress.org/latest.tar.gz
+tar -xzf latest.tar.gz
+
+$ ls
+latest.tar.gz  wordpress
+
+--> cd wordpress
+
+create a wp-config file from sample file already provided
+
+--> cp wp-config-sample.php wp-config.php
+
+--
+
+edit the wp-config.php file to point to database
+--> vim wp-config.php
+
+
+----
+
+// ** MySQL settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
+define( 'DB_NAME', 'database_name_here' );
+
+/** MySQL database username */
+define( 'DB_USER', 'username_here' );
+
+/** MySQL database password */
+define( 'DB_PASSWORD', 'password_here' );
+
+/** MySQL hostname */
+define( 'DB_HOST', 'rds-endpoint-name' );
+
+------
+
+wordpress.cfpgnjehw330.ap-south-1.rds.amazonaws.com
+
+Now go to this link and it provides some information to update the same file. It looks like below shared one.
+
+https://api.wordpress.org/secret-key/1.1/salt/
+
+define('AUTH_KEY',         '+7PJzjGD58|QG!$`<`9wCCA?k*Ju&8eCfg=/aFKo0tO5Tn73Cg 9|Ed73k|Gw(3^');
+define('SECURE_AUTH_KEY',  ':H$M&^AhBC|&b$9<;!wJ~vdFvbE6t:EwH5ik/D!@]@%Dv3!-Q^hNH3*O+-$L6c*|');
+define('LOGGED_IN_KEY',    'g9?;b_AA[2_62%YbR$G-mb0vD3 BNW[; $9N^E2^jt$LkF 8_^baTmjhp<eE5GUd');
+define('NONCE_KEY',        'G;Wf@|;j[B!>wkG6EWU[_%G^(zQh>R812&-x^cPoq`tOOu>q)#JVa Y%No%.JpZ[');
+define('AUTH_SALT',        'up^dE)4&x/?]1:v7_ljQp-Gglb+)^?FIw{t0hl[tz6Vhiohr(dVMh+d5=R<.l_#l');
+define('SECURE_AUTH_SALT', '@%ka=9?}BQ[m#29D+@dTZ`tlQI!plY~++Q(&]n<pKthXS5y93XvX8n[MT{|fypE~');
+define('LOGGED_IN_SALT',   'o!UX5|LW4ei<2|}B*3_kY V6mCx?=-{+,J(qX,cs+-Rd/1JSPS?e`YW*nrWb|FG ');
+define('NONCE_SALT',       '+t}kH4DA`;+mN2_t_IiOE1/?JHLl?SE9LB~QD&$MQPt8(iWX(]e?&tV;k:>|)IoE');
+
+
+=====================
+
+Now install dependencies..
+
+
+--> sudo amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
+
+come back to home directory and copy all content to /var/www/html, Then restart the service.
+
+--> cd /home/ec2-user
+
+--> sudo cp -r wordpress/* /var/www/html/
+
+--> sudo service httpd restart
+
+
+Get your instance public IP and Paster it in browser, It should give you wordpress initial configuration page. 
+
+===============================
+
+Create an application Load balancer and Deliver your wordpress website.
+
+
